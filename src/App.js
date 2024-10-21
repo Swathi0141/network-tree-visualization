@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { auth } from "./firebase";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
@@ -25,10 +25,10 @@ function App() {
           {user && <Logout />}
         </header>
 
-        <Switch>
-          <Route path="/login" component={Login} />
-          <ProtectedRoute path="/" component={() => <NetworkTree data={data} />} />
-        </Switch>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<ProtectedRoute element={<NetworkTree data={data} />} />} />
+        </Routes>
       </div>
     </Router>
   );

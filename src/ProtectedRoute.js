@@ -1,16 +1,9 @@
 import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { auth } from './firebase';
 
-const ProtectedRoute = ({ component: Component, ...rest }) => {
-  return (
-    <Route
-      {...rest}
-      render={(props) =>
-        auth.currentUser ? <Component {...props} /> : <Redirect to="/login" />
-      }
-    />
-  );
+const ProtectedRoute = ({ element: Component }) => {
+  return auth.currentUser ? Component : <Navigate to="/login" />
 };
 
 export default ProtectedRoute;

@@ -15,7 +15,7 @@ const NetworkTree = ({ data }) => {
       .append('g');
 
     const root = d3.hierarchy(data);
-    const treeLayout = d3.tree().size([800, 600]);
+    const treeLayout = d3.tree().size([400, 400]);
     const treeData = treeLayout(root);
 
     // Links
@@ -36,7 +36,7 @@ const NetworkTree = ({ data }) => {
       .append('circle')
       .attr('cx', d => d.x)
       .attr('cy', d => d.y)
-      .attr('r', 5)
+      .attr('r', 20)
       .attr('fill', 'blue');
     
   }, [data]);
