@@ -15,10 +15,28 @@ const useDebounce = (value, delay) => {
   return debouncedValue;
 };
 
+const meaningfulNames = [
+  "Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel",
+  "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa",
+  "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-ray",
+  "Yankee", "Zulu", "Phoenix", "Orion", "Lyra", "Pegasus", "Aurora", "Vega",
+];
+
+const getRandomName = (usedNames) => {
+  let randomName;
+  do {
+    randomName = meaningfulNames[Math.floor(Math.random() * meaningfulNames.length)] +
+                 Math.floor(Math.random() * 1000); // Add a random number for uniqueness
+  } while (usedNames.has(randomName)); // Ensure no duplicates
+  usedNames.add(randomName);
+  return randomName;
+};
+
 const generateTestData = (numNodes) => {
+  const usedNames = new Set();
   const generateNode = (level, index) => ({
-    name: `Node ${level}-${index}`,
-    image: `https://picsum.photos/seed/node${level}-${index}/100/100`,
+    name: getRandomName(usedNames),
+    image: `https://picsum.photos/seed/${level}-${index}100/100`,
     children: level < Math.log2(numNodes) ? Array(2).fill(null).map((_, i) => generateNode(level + 1, index * 2 + i)) : []
   });
 
@@ -37,18 +55,21 @@ const NetworkTree = () => {
     const svg = d3.select(svgRef.current)
     svg.selectAll("*").remove();
 
+    const zoomBehavior = d3.zoom().on('zoom', (event) => {
+      g.attr('transform', event.transform);
+    });
+
     const g = svg
       .attr("width", 800)
       .attr("height", 600)
-      .call(d3.zoom().on("zoom", (event) => {
-        svg.attr("transform", event.transform);
-      }))
+      .call(zoomBehavior)
       .append("g")
       .attr("transform", "translate(100,100)");
-
+    
     const renderTree = () => {
       const root = d3.hierarchy(data);
-      const treeLayout = d3.tree().size([800, 600]);
+      
+      const treeLayout = d3.tree().nodeSize([100, 200]);
       treeLayout(root);
 
       const nodes = g.selectAll(".node")
@@ -90,7 +111,7 @@ const NetworkTree = () => {
         .attr("text-anchor", "start")
         .style("font-size", "12px")
         .style("fill", "#333")
-        .text(d => d.data.name);  
+        .text(d => d.data.name); 
 
     // Remove old nodes
     nodes.exit().remove();
@@ -111,6 +132,33 @@ const NetworkTree = () => {
 
       // Remove old links
       links.exit().remove();
+
+      //zoom on to the searched node
+      if (debouncedSearchTerm) {
+        const targetNode = root
+          .descendants()
+          .find((node) =>
+            node.data.name
+              .toLowerCase()
+              .includes(debouncedSearchTerm.toLowerCase())
+          );
+
+        if (targetNode) {
+
+          let current = targetNode;
+          while (current) {
+              current._children = current.children;
+              current.children = current._children;
+              current = current.parent;
+          }
+
+          treeLayout(root);
+          
+          const [x, y] = [targetNode.x, targetNode.y];
+          const transform = d3.zoomIdentity.translate(400 - x * 2, 300 - y * 2).scale(2)
+          svg.transition().duration(1000).call(zoomBehavior.transform, transform);
+        }
+      }
     };
 
     renderTree();

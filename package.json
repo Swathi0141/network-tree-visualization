@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "d3": "^7.4.4",
+    "dotenv": "^16.4.5",
+    "firebase": "^9.9.3",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-scripts": "5.0.1",
-    "firebase": "^9.9.3",
-    "d3": "^7.4.4"
+    "react-router-dom": "^6.28.0",
+    "react-scripts": "5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
